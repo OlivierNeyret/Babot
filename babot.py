@@ -36,7 +36,7 @@ def callbackEvent(recipients, message, when):
     messageToSend = "[Babot] "
     attachmentsToSend = []
     if(message[0] == "%"): # attachment
-        attachmentsToSend.append(DIR_DATA+"events/"+message[1:])
+        attachmentsToSend.append(DIR_DATA+'ressources/events/'+message[1:])
     else:
         messageToSend += message
         messageToSend = emoji.emojize(messageToSend)
@@ -71,7 +71,7 @@ def commande(message, source, groupID):
     elif(cmd == "unregisterevent"):
         return ""
     elif(cmd == "joke"):
-        return "%jokes/"+random.choice(os.listdir(DIR_DATA+"jokes"))
+        return "%jokes/"+random.choice(os.listdir(DIR_DATA+'ressources/'+"jokes"))
     else: # Look for stickers
         if(cmd in stickersDB):
             stick = stickersDB[cmd]
@@ -87,7 +87,10 @@ def IA(message, source, groupID):
     for word in message.split():
         if(word in wordDB):
             answers = wordDB[word]
-            return random.choice(answers)
+            answer = random.choice(answers)
+            if(answer != "" and answer[0] == '%'):
+                answer = '%answers/'+answer[1:]
+            return answer
     return ""
 
 def msgRcv (timestamp, source, groupID, message, attachments):
@@ -99,7 +102,7 @@ def msgRcv (timestamp, source, groupID, message, attachments):
         if(answer != ""):
             attachmentsToSend = []
             if(answer[0] == "%"): # attachment
-                attachmentsToSend.append(DIR_DATA+answer[1:])
+                attachmentsToSend.append(DIR_DATA+'ressources/'+answer[1:])
             else:
                 messageToSend += answer
                 messageToSend = emoji.emojize(messageToSend)
@@ -124,11 +127,11 @@ import threading
 
 DIR_DATA = "/home/signal-cli/data/"
 
-fileWord = open("behavior/word.yml")
+fileWord = open(DIR_DATA+"behavior/word.yml")
 wordDB = yaml.load(fileWord)
-fileStickers = open("behavior/stickers.yml")
+fileStickers = open(DIR_DATA+"behavior/stickers.yml")
 stickersDB = yaml.load(fileStickers)
-fileEvents = open("behavior/events.yml")
+fileEvents = open(DIR_DATA+"behavior/events.yml")
 eventsDB = yaml.load(fileEvents)
 
 for event in eventsDB:
