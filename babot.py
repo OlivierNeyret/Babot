@@ -78,7 +78,7 @@ def commande(message, source, groupID):
             authorized_recipient = stick[0]["authorized_recipient"]
             if(source in authorized_recipient or groupID in authorized_recipient):
                 return "%stickers/"+stick[1]
-    return "I do not know this command :/"
+    return configDB['command_unknown'][0]
 
 def IA(message, source, groupID):
     if(message[0] == "!"):
@@ -97,7 +97,7 @@ def msgRcv (timestamp, source, groupID, message, attachments):
     # print ("== MESSAGE RECEIVE ==")
     # print (message)
     if(message != ""):
-        messageToSend = "[Babot] "
+        messageToSend = '['+configDB['name'][0]+'] '
         answer = IA(message, source, groupID)
         if(answer != ""):
             attachmentsToSend = []
@@ -125,7 +125,11 @@ import os
 from datetime import datetime, timedelta
 import threading
 
-DIR_DATA = "/home/signal-cli/data/"
+configFile = open("config.yml")
+configDB = yaml.load(configFile)
+
+# DIR_DATA = "/home/signal-cli/data/"
+DIR_DATA = configDB["data_directory"][0]
 
 fileWord = open(DIR_DATA+"behavior/word.yml")
 wordDB = yaml.load(fileWord)
