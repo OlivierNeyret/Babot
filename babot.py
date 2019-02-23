@@ -19,7 +19,6 @@ def initEvent(event):
     recipients = eventsDB[event][0]["registered_recipient"]
     message = random.choice(eventsDB[event][1]["answers"])
     attachment = random.choice(eventsDB[event][2]["attachment"])
-    print(attachment)
     whenStr = eventsDB[event][3]
     when = datetime.strptime(whenStr, "%H:%M:%S")
     delay = computeNextEvent(when)
