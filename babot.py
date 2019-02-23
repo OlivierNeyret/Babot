@@ -17,11 +17,13 @@
 
 def initEvent(event):
     recipients = eventsDB[event][0]["registered_recipient"]
-    whenStr = eventsDB[event][1]
+    message = random.choice(eventsDB[event][1]["answers"])
+    attachment = random.choice(eventsDB[event][2]["attachment"])
+    print(attachment)
+    whenStr = eventsDB[event][3]
     when = datetime.strptime(whenStr, "%H:%M:%S")
-    content = eventsDB[event][2]
     delay = computeNextEvent(when)
-    threading.Timer(delay, callbackEvent, args=[recipients, content, when]).start()
+    threading.Timer(delay, callbackEvent, args=[recipients, message, attachment, when, event]).start()
 
 def computeNextEvent(when):
     now = datetime.now()
@@ -32,21 +34,18 @@ def computeNextEvent(when):
     delay = (nowAfter - now).total_seconds()
     return delay
 
-def callbackEvent(recipients, message, when):
-    messageToSend = "[Babot] "
+def callbackEvent(recipients, message, attachment, when, event):
+    messageToSend = "[Babot] " + message
+    messageToSend = emoji.emojize(messageToSend)
     attachmentsToSend = []
-    if(message[0] == "%"): # attachment
-        attachmentsToSend.append(DIR_DATA+'ressources/events/'+message[1:])
-    else:
-        messageToSend += message
-        messageToSend = emoji.emojize(messageToSend)
+    if(attachment != ""): # attachment
+        attachmentsToSend.append(DIR_DATA+'ressources/events/'+attachment)
     for recipient in recipients:
         if(recipient[0] == "+"):
             signal.sendMessage(messageToSend, attachmentsToSend, [recipient])
         else:
             signal.sendGroupMessage(messageToSend, attachmentsToSend, recipient)
-    delay = computeNextEvent(when)
-    threading.Timer(delay, callbackEvent, args=[recipients, message, when]).start()
+    initEvent(event)
 
 def cleanMessage(message):
     clean = message.lower()
