@@ -15,37 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-def initEvent(event):
-    recipients = eventsDB[event][0]["registered_recipient"]
-    message = random.choice(eventsDB[event][1]["answers"])
-    attachment = random.choice(eventsDB[event][2]["attachment"])
-    whenStr = eventsDB[event][3]
-    when = datetime.strptime(whenStr, "%H:%M:%S")
-    delay = computeNextEvent(when)
-    threading.Timer(delay, callbackEvent, args=[recipients, message, attachment, when, event]).start()
-
-def computeNextEvent(when):
-    now = datetime.now()
-    addDay = 0
-    if(now.hour > when.hour or (now.hour == when.hour and now.minute > when.minute) or (now.hour == when.hour and now.minute == when.minute and now.second > when.second) or (now.hour == when.hour and now.minute == when.minute and now.second == when.second and now.microsecond > when.microsecond)):
-        addDay = 1
-    nowAfter = now.replace(day=now.day+addDay, hour=when.hour, minute=when.minute, second=when.second, microsecond=when.microsecond)
-    delay = (nowAfter - now).total_seconds()
-    return delay
-
-def callbackEvent(recipients, message, attachment, when, event):
-    messageToSend = "[Babot] " + message
-    messageToSend = emoji.emojize(messageToSend)
-    attachmentsToSend = []
-    if(attachment != ""): # attachment
-        attachmentsToSend.append(DIR_DATA+'ressources/events/'+attachment)
-    for recipient in recipients:
-        if(recipient[0] == "+"):
-            signal.sendMessage(messageToSend, attachmentsToSend, [recipient])
-        else:
-            signal.sendGroupMessage(messageToSend, attachmentsToSend, recipient)
-    initEvent(event)
-
 def cleanMessage(message):
     clean = message.lower()
     clean = clean.translate(str.maketrans("àâçéèêëîïôùûü"+string.punctuation, 'aaceeeeiiouuu'+' '*len(string.punctuation)))
@@ -120,8 +89,7 @@ import random
 import string
 import emoji
 import os
-from datetime import datetime, timedelta
-import threading
+from Event import Event
 
 configFile = open("config.yml")
 configDB = yaml.load(configFile)
@@ -136,13 +104,14 @@ stickersDB = yaml.load(fileStickers)
 fileEvents = open(DIR_DATA+"behavior/events.yml")
 eventsDB = yaml.load(fileEvents)
 
-for event in eventsDB:
-    initEvent(event)
-
 bus = SystemBus()
 loop = GLib.MainLoop()
 
 signal = bus.get('org.asamk.Signal')
+
+for event in eventsDB:
+    e = Event(eventsDB[event], signal, DIR_DATA)
+    e.enable()
 
 signal.onMessageReceived = msgRcv
 loop.run()

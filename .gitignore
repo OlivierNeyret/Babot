@@ -1,3 +1,4 @@
 test.py
 .vscode/*
 useful_later/*
+__pycache__/*
