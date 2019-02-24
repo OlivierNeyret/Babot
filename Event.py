@@ -35,7 +35,6 @@ class Event:
     def enable(self):
         for when in self.whenDatetimes:
             self.__enableOne(when)
-        print(self.__threads)
 
     def __enableOne(self, when):
         delay = self.computeNextEvent(when)
