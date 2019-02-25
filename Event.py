@@ -50,7 +50,7 @@ class Event:
         messageToSend = "[Babot] " + random.choice(self.messages)
         messageToSend = emoji.emojize(messageToSend)
         attachmentsToSend = []
-        if(self.attachments != []): # attachment
+        if(self.attachments != None and self.attachments != []): # attachment
             attachmentsToSend.append(self.dir_data+'ressources/events/'+random.choice(self.attachments))
         for recipient in self.recipients:
             if(recipient[0] == "+"):
