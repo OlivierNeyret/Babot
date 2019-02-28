@@ -63,9 +63,10 @@ class Event:
     def computeNextEvent(self, when):
         now = datetime.now()
         addDay = 0
-        if(now.hour > when.hour or (now.hour == when.hour and now.minute > when.minute) or (now.hour == when.hour and now.minute == when.minute and now.second > when.second) or (now.hour == when.hour and now.minute == when.minute and now.second == when.second and now.microsecond > when.microsecond)):
+        if(now.time() > when.time()):
             addDay = 1
         nowAfter = now + timedelta(days=addDay)
         nowAfter = nowAfter.replace(hour=when.hour, minute=when.minute, second=when.second, microsecond=when.microsecond)
+        print(nowAfter)
         delay = (nowAfter - now).total_seconds()
         return delay
