@@ -65,6 +65,7 @@ class Event:
         addDay = 0
         if(now.hour > when.hour or (now.hour == when.hour and now.minute > when.minute) or (now.hour == when.hour and now.minute == when.minute and now.second > when.second) or (now.hour == when.hour and now.minute == when.minute and now.second == when.second and now.microsecond > when.microsecond)):
             addDay = 1
-        nowAfter = now.replace(day=now.day+addDay, hour=when.hour, minute=when.minute, second=when.second, microsecond=when.microsecond)
+        nowAfter = now + timedelta(days=addDay)
+        nowAfter = nowAfter.replace(hour=when.hour, minute=when.minute, second=when.second, microsecond=when.microsecond)
         delay = (nowAfter - now).total_seconds()
         return delay
