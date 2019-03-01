@@ -23,10 +23,19 @@ def cleanMessage(message):
     return clean
 
 # Expect a command without the first '!'
-def commande(message, source, groupID):
+def commande(conv, message, source, groupID):
     cmd = message.split(None, 1)[0]
     if(cmd == "help"):
-        return "Available commands:\n\t!joke (sends a joke)"
+        return ("Available commands:"
+                "\n\t!joke (sends a joke)"
+                "\n\t!pause (stop Babot)"
+                "\n\t!comeback (activate Babot)")
+    elif(cmd == "pause"):
+        if(conv != None):
+            return '%conversations/'+conv.pause()[1:]
+    elif(cmd == "comeback"):
+        if(conv != None):
+            return '%conversations/'+conv.wake()[1:]
     elif(cmd == "neworder"):
         return ""
     elif(cmd == "answerorder"):
@@ -47,9 +56,14 @@ def commande(message, source, groupID):
                 return "%stickers/"+stick[1]
     return configDB['command_unknown'][0]
 
-def IA(message, source, groupID):
+def IA(conv, source, groupID, message, attachments):
+    if(conv != None and conv.isSleeping()):
+        answer = conv.wake()
+        if(answer != "" and answer[0] == '%'):
+            answer = '%conversations/'+answer[1:]
+        return answer
     if(message[0] == "!"):
-        return commande(message[1:], source, groupID)
+        return commande(conv, message[1:], source, groupID)
     message = cleanMessage(message)
     for word in message.split():
         if(word in wordDB):
@@ -61,23 +75,24 @@ def IA(message, source, groupID):
     return ""
 
 def msgRcv (timestamp, source, groupID, message, attachments):
-    # print ("== MESSAGE RECEIVE ==")
-    # print (message)
-    if(message != ""):
-        messageToSend = '['+configDB['name'][0]+'] '
-        answer = IA(message, source, groupID)
-        if(answer != ""):
-            attachmentsToSend = []
-            if(answer[0] == "%"): # attachment
-                attachmentsToSend.append(DIR_DATA+'ressources/'+answer[1:])
-            else:
-                messageToSend += answer
-                messageToSend = emoji.emojize(messageToSend)
-            if(groupID == []):
-                signal.sendMessage(messageToSend, attachmentsToSend, [source])
-            else:
-                signal.sendGroupMessage(messageToSend, attachmentsToSend, groupID)
-    # Delete attachment
+    # check only groupId for now, until indentites are accessible from dbus
+    conv = next((x for x in conversations if x.number == groupID), None)
+    if(message == '!comeback' or (conv != None and conv.shutup == False) or conv == None):
+        if(message != ""):
+            messageToSend = '['+configDB['name'][0]+'] '
+            answer = IA(conv, source, groupID, message, attachments)
+            if(answer != ""):
+                attachmentsToSend = []
+                if(answer[0] == "%"): # attachment
+                    attachmentsToSend.append(DIR_DATA+'ressources/'+answer[1:])
+                else:
+                    messageToSend += answer
+                    messageToSend = emoji.emojize(messageToSend)
+                if(groupID == []):
+                    signal.sendMessage(messageToSend, attachmentsToSend, [source])
+                else:
+                    signal.sendGroupMessage(messageToSend, attachmentsToSend, groupID)
+    # Delete attachments
     for a in attachments:
         os.remove(a)
     return
@@ -90,28 +105,53 @@ import string
 import emoji
 import os
 from Event import Event
+from Conversation import Conversation, GroupConversation
 
 configFile = open("config.yml")
 configDB = yaml.load(configFile)
 
-# DIR_DATA = "/home/signal-cli/data/"
 DIR_DATA = configDB["data_directory"][0]
 
-fileWord = open(DIR_DATA+"behavior/word.yml")
-wordDB = yaml.load(fileWord)
-fileStickers = open(DIR_DATA+"behavior/stickers.yml")
-stickersDB = yaml.load(fileStickers)
-fileEvents = open(DIR_DATA+"behavior/events.yml")
-eventsDB = yaml.load(fileEvents)
+wordDB = yaml.load(open(DIR_DATA+"behavior/word.yml"))
+stickersDB = yaml.load(open(DIR_DATA+"behavior/stickers.yml"))
+eventsDB = yaml.load(open(DIR_DATA+"behavior/events.yml"))
+convDB = yaml.load(open(DIR_DATA+"behavior/conversation.yml"))
 
 bus = SystemBus()
 loop = GLib.MainLoop()
 
 signal = bus.get('org.asamk.Signal')
 
+# Create known Conversation instances
+# (only for groups because https://github.com/AsamK/signal-cli/issues/195)
+conversations = []
+gs = signal.getGroupIds()
+for g in gs:
+    gc = GroupConversation(g, convDB)
+    gc.setMembers(signal.getGroupMembers(g))
+    conversations.append(gc)
+
 for event in eventsDB:
     e = Event(eventsDB[event], signal, DIR_DATA)
+    if(event.startswith("hello")):
+        for recipient in eventsDB[event][0]['registered_recipient']:
+            c = next((x for x in conversations if x.number == recipient), None)
+            if(c != None):
+                c.setWakeup(e.whenDatetimes[0])
+            else:
+                print("Recipient not known by babot: "+recipient+"\nBabot will continue to work anyway")
+    elif(event.startswith("good_night")):
+        for recipient in eventsDB[event][0]['registered_recipient']:
+            c = next((x for x in conversations if x.number == recipient), None)
+            if(c.number == recipient):
+                c.setGoodnight(e.whenDatetimes[0])
+            else:
+                print("Recipient not known by babot: "+recipient+"\nBabot will continue to work anyway")
     e.enable()
+
+for sticker in stickersDB:
+    print("Stickers are not implemented yet :/")
+    # do real stuff
 
 signal.onMessageReceived = msgRcv
 loop.run()

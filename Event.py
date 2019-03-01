@@ -60,13 +60,13 @@ class Event:
         self.__threads.remove(threading.current_thread())
         self.__enableOne(when)
 
-    def computeNextEvent(self, when):
+    @staticmethod
+    def computeNextEvent(when):
         now = datetime.now()
         addDay = 0
         if(now.time() > when.time()):
             addDay = 1
         nowAfter = now + timedelta(days=addDay)
         nowAfter = nowAfter.replace(hour=when.hour, minute=when.minute, second=when.second, microsecond=when.microsecond)
-        print(nowAfter)
         delay = (nowAfter - now).total_seconds()
         return delay
