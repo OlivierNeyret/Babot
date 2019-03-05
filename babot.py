@@ -132,21 +132,17 @@ for g in gs:
     conversations.append(gc)
 
 for event in eventsDB:
-    e = Event(eventsDB[event], signal, DIR_DATA)
-    if(event.startswith("hello")):
-        for recipient in eventsDB[event][0]['registered_recipient']:
-            c = next((x for x in conversations if x.number == recipient), None)
-            if(c != None):
+    e = Event(eventsDB[event], event, signal, DIR_DATA)
+    for recipient in eventsDB[event][0]['registered_recipient']:
+        c = next((x for x in conversations if x.number == recipient), None)
+        if(c != None):
+            c.events.append(e)
+            if(event.startswith("hello")):
                 c.setWakeup(e.whenDatetimes[0])
-            else:
-                print("Recipient not known by babot: "+recipient+"\nBabot will continue to work anyway")
-    elif(event.startswith("good_night")):
-        for recipient in eventsDB[event][0]['registered_recipient']:
-            c = next((x for x in conversations if x.number == recipient), None)
-            if(c.number == recipient):
+            elif(event.startswith("good_night")):
                 c.setGoodnight(e.whenDatetimes[0])
-            else:
-                print("Recipient not known by babot: "+recipient+"\nBabot will continue to work anyway")
+        else:
+            print("Recipient not known by babot: "+recipient+"\nBabot will continue to work anyway. No events will be triggered.")
     e.enable()
 
 for sticker in stickersDB:

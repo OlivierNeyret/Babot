@@ -21,7 +21,8 @@ import random
 import emoji
 
 class Event:
-    def __init__(self, event, signal, dir_data):
+    def __init__(self, event, name, signal, dir_data):
+        self.name = name
         self.recipients = event[0]["registered_recipient"]
         self.messages = event[1]["answers"]
         self.attachments = event[2]["attachment"]

@@ -62,6 +62,9 @@ class Conversation:
 
     def callbackWakeup(self):
         self.__isAwake = True
+        for e in self.events:
+            if(not e.name.startswith("hello") and not e.name.startswith("good_night")):
+                e.enable()
         delay = Event.computeNextEvent(self.wakeup)
         t = threading.Timer(delay, self.callbackWakeup)
         self.threads[0] = t
@@ -69,6 +72,9 @@ class Conversation:
     
     def callbackGoodnight(self):
         self.__isAwake = False
+        for e in self.events:
+            if(not(e.name.startswith("hello") or e.name.startswith("good_night"))):
+                e.disable()
         delay = Event.computeNextEvent(self.wakeup)
         t = threading.Timer(delay, self.callbackGoodnight)
         self.threads[1] = t
