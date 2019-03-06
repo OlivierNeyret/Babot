@@ -62,9 +62,7 @@ class Conversation:
 
     def callbackWakeup(self):
         self.__isAwake = True
-        for e in self.events:
-            if(not e.name.startswith("hello") and not e.name.startswith("good_night")):
-                e.enable()
+        self.enableEvents()
         delay = Event.computeNextEvent(self.wakeup)
         t = threading.Timer(delay, self.callbackWakeup)
         self.threads[0] = t
@@ -72,9 +70,7 @@ class Conversation:
     
     def callbackGoodnight(self):
         self.__isAwake = False
-        for e in self.events:
-            if(not(e.name.startswith("hello") or e.name.startswith("good_night"))):
-                e.disable()
+        self.disableEvents()
         delay = Event.computeNextEvent(self.wakeup)
         t = threading.Timer(delay, self.callbackGoodnight)
         self.threads[1] = t
@@ -85,11 +81,13 @@ class Conversation:
 
     def pause(self):
         self.shutup = True
+        self.disableEvents()
         return random.choice(self.shutupAnswer)
 
     def wake(self):
         if(self.shutup):
             self.shutup = False
+            self.enableEvents()
             return random.choice(self.comebackAnswer)
         if(self.__isAwake):
             return random.choice(self.alreadyThereAnswer)
@@ -97,7 +95,18 @@ class Conversation:
             self.__isAwake = True
             if(self.threads[0] != None):
                 self.threads[0].cancel()
+            self.enableEvents()
             return random.choice(self.justAwakeAnswer)
+
+    def enableEvents(self):
+        for e in self.events:
+            if(not e.name.startswith("hello") and not e.name.startswith("good_night")):
+                e.enable()
+
+    def disableEvents(self):
+        for e in self.events:
+            if(not(e.name.startswith("hello") or e.name.startswith("good_night"))):
+                e.disable()
     
 class GroupConversation(Conversation):
     def __init__(self, number, yamlData):
