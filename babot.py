@@ -79,7 +79,7 @@ def msgRcv (timestamp, source, groupID, message, attachments):
     conv = next((x for x in conversations if x.number == groupID), None)
     if(message == '!comeback' or (conv != None and conv.shutup == False) or conv == None):
         if(message != ""):
-            messageToSend = '['+configDB['name'][0]+'] '
+            messageToSend = '['+emoji.emojize(configDB['name'][0])+'] '
             answer = IA(conv, source, groupID, message, attachments)
             if(answer != ""):
                 attachmentsToSend = []

@@ -16,7 +16,8 @@
 # Global config file
 
 name:
-  - Babot
+  - ":robot_face:"
+# - Babot
 
 data_directory:
   - "/home/signal-cli/data/"
