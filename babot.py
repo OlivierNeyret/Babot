@@ -139,8 +139,10 @@ for event in eventsDB:
             c.events.append(e)
             if(event.startswith("hello")):
                 c.setWakeup(e.whenDatetimes[0])
+                print("One hello event prepared")
             elif(event.startswith("good_night")):
                 c.setGoodnight(e.whenDatetimes[0])
+                print("One good night event prepared")
         else:
             print("Recipient not known by babot: "+str(recipient)+"\nBabot will continue to work anyway. No events will be triggered.")
     e.enable()
