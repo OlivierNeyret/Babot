@@ -18,6 +18,18 @@
 # This is an helper script to know what signal-cli knows about your groups
  
 from pydbus import SystemBus
+import re
+
+def convert_dec_to_hex(str_id):
+    result = '['
+    splitted_str = re.split('\W+',str_id)
+    for elem in splitted_str:
+        if len(elem) != 0:
+            result += hex(int(elem))
+            result += ', '
+    result = result[:-2]
+    result += ']'
+    return result
 
 bus = SystemBus()
 signal = bus.get('org.asamk.Signal')
@@ -25,7 +37,8 @@ signal = bus.get('org.asamk.Signal')
 groups = signal.getGroupIds()
 print("Group (Id-Name-Members):")
 for g in groups:
-    print("  Id=" + str(g) + " Name=" + signal.getGroupName(g))
+    group_id = convert_dec_to_hex(str(g))
+    print("  Id=" + str(group_id) + " Name=" + signal.getGroupName(g))
     members = signal.getGroupMembers(g)
     print("  Members:")
     for m in members:
