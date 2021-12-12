@@ -49,7 +49,7 @@ class Event:
 
     def callback(self, when):
         messageToSend = "[Babot] " + random.choice(self.messages)
-        messageToSend = emoji.emojize(messageToSend)
+        messageToSend = emoji.emojize(messageToSend, use_aliases=True)
         attachmentsToSend = []
         if(self.attachments != None and self.attachments != []): # attachment
             attachmentsToSend.append(self.dir_data+'ressources/events/'+random.choice(self.attachments))

@@ -79,7 +79,7 @@ def msgRcv (timestamp, source, groupID, message, attachments):
     conv = next((x for x in conversations if x.number == groupID), None)
     if(message == '!comeback' or (conv != None and conv.shutup == False) or conv == None):
         if(message != ""):
-            messageToSend = '['+emoji.emojize(configDB['name'][0])+'] '
+            messageToSend = '['+emoji.emojize(configDB['name'][0], use_aliases=True)+'] '
             answer = IA(conv, source, groupID, message, attachments)
             if(answer != ""):
                 attachmentsToSend = []
@@ -87,7 +87,7 @@ def msgRcv (timestamp, source, groupID, message, attachments):
                     attachmentsToSend.append(DIR_DATA+'ressources/'+answer[1:])
                 else:
                     messageToSend += answer
-                    messageToSend = emoji.emojize(messageToSend)
+                    messageToSend = emoji.emojize(messageToSend, use_aliases=True)
                 if(groupID == []):
                     signal.sendMessage(messageToSend, attachmentsToSend, [source])
                 else:
@@ -108,14 +108,14 @@ from Event import Event
 from Conversation import Conversation, GroupConversation
 
 configFile = open("config.yml")
-configDB = yaml.load(configFile, Loader=yaml.FullLoader)
+configDB = yaml.load(configFile)
 
 DIR_DATA = configDB["data_directory"][0]
 
-wordDB = yaml.load(open(DIR_DATA+"behavior/word.yml"), Loader=yaml.FullLoader)
-stickersDB = yaml.load(open(DIR_DATA+"behavior/stickers.yml"), Loader=yaml.FullLoader)
-eventsDB = yaml.load(open(DIR_DATA+"behavior/events.yml"), Loader=yaml.FullLoader)
-convDB = yaml.load(open(DIR_DATA+"behavior/conversation.yml"), Loader=yaml.FullLoader)
+wordDB = yaml.load(open(DIR_DATA+"behavior/word.yml"))
+stickersDB = yaml.load(open(DIR_DATA+"behavior/stickers.yml"))
+eventsDB = yaml.load(open(DIR_DATA+"behavior/events.yml"))
+convDB = yaml.load(open(DIR_DATA+"behavior/conversation.yml"))
 
 bus = SystemBus()
 loop = GLib.MainLoop()
@@ -142,7 +142,7 @@ for event in eventsDB:
             elif(event.startswith("good_night")):
                 c.setGoodnight(e.whenDatetimes[0])
         else:
-            print("Recipient not known by babot: "+recipient+"\nBabot will continue to work anyway. No events will be triggered.")
+            print("Recipient not known by babot: "+str(recipient)+"\nBabot will continue to work anyway. No events will be triggered.")
     e.enable()
 
 for sticker in stickersDB:
