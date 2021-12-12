@@ -108,14 +108,14 @@ from Event import Event
 from Conversation import Conversation, GroupConversation
 
 configFile = open("config.yml")
-configDB = yaml.load(configFile)
+configDB = yaml.load(configFile, Loader=yaml.FullLoader)
 
 DIR_DATA = configDB["data_directory"][0]
 
-wordDB = yaml.load(open(DIR_DATA+"behavior/word.yml"))
-stickersDB = yaml.load(open(DIR_DATA+"behavior/stickers.yml"))
-eventsDB = yaml.load(open(DIR_DATA+"behavior/events.yml"))
-convDB = yaml.load(open(DIR_DATA+"behavior/conversation.yml"))
+wordDB = yaml.load(open(DIR_DATA+"behavior/word.yml"), Loader=yaml.FullLoader)
+stickersDB = yaml.load(open(DIR_DATA+"behavior/stickers.yml"), Loader=yaml.FullLoader)
+eventsDB = yaml.load(open(DIR_DATA+"behavior/events.yml"), Loader=yaml.FullLoader)
+convDB = yaml.load(open(DIR_DATA+"behavior/conversation.yml"), Loader=yaml.FullLoader)
 
 bus = SystemBus()
 loop = GLib.MainLoop()
