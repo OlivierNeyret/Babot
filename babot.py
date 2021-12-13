@@ -64,9 +64,9 @@ def IA(conv, source, groupID, message, attachments):
         return answer
     if(message[0] == "!"):
         return commande(conv, message[1:], source, groupID)
-    message = cleanMessage(message)
     if(message.isupper()):
         return random.choice(configDB['full_capslock'])
+    message = cleanMessage(message)
     for word in message.split():
         if(word in wordDB):
             answers = wordDB[word]
