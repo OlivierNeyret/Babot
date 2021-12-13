@@ -24,3 +24,7 @@ data_directory:
 
 command_unknown:
   - "I do not know this command :/"
+
+full_capslock:
+  - "Slow down on caps lock!"
+  - "No need to scream!"
