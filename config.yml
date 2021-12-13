@@ -1,4 +1,4 @@
-# Copyright (C) 2019 Olivier Neyret
+# Copyright (C) 2019-2021 Olivier Neyret
 #
 # This file is part of Babot.
 #
