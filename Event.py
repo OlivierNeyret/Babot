@@ -21,7 +21,7 @@ import random
 import emoji
 
 class Event:
-    def __init__(self, event, name, signal, dir_data):
+    def __init__(self, event, name, signal, dir_data, bot_name):
         self.name = name
         self.recipients = event[0]["registered_recipient"]
         self.messages = event[1]["answers"]
@@ -32,6 +32,7 @@ class Event:
         self.__threads = []
         self.signal = signal
         self.dir_data = dir_data
+        self.bot_name = bot_name
 
     def enable(self):
         for when in self.whenDatetimes:
@@ -48,7 +49,7 @@ class Event:
             t.cancel()
 
     def callback(self, when):
-        messageToSend = "[Babot] " + random.choice(self.messages)
+        messageToSend = "["+emoji.emojize(self.bot_name, use_aliases=True)+"] " + random.choice(self.messages)
         messageToSend = emoji.emojize(messageToSend, use_aliases=True)
         attachmentsToSend = []
         if(self.attachments != None and self.attachments != []): # attachment

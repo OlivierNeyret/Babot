@@ -132,7 +132,7 @@ for g in gs:
     conversations.append(gc)
 
 for event in eventsDB:
-    e = Event(eventsDB[event], event, signal, DIR_DATA)
+    e = Event(eventsDB[event], event, signal, DIR_DATA, configDB['name'][0])
     for recipient in eventsDB[event][0]['registered_recipient']:
         c = next((x for x in conversations if x.number == recipient), None)
         if(c != None):
