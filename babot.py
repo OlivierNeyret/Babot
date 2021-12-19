@@ -23,7 +23,7 @@ def cleanMessage(message):
     return clean
 
 # Expect a command without the first '!'
-def commande(conv, message, source, groupID):
+def command(conv, message, source, groupID):
     cmd = message.split(None, 1)[0]
     if(cmd == "help"):
         return ("Available commands:"
@@ -61,28 +61,33 @@ def IA(conv, source, groupID, message, attachments):
         answer = conv.wake()
         if(answer != "" and answer[0] == '%'):
             answer = '%conversations/'+answer[1:]
-        return answer
+        return answer, ""
     if(message[0] == "!"):
-        return commande(conv, message[1:], source, groupID)
+        return command(conv, message[1:], source, groupID), ""
     if(message.isupper()):
-        return random.choice(configDB['full_capslock'])
+        return random.choice(configDB['full_capslock']), ""
     message = cleanMessage(message)
     for word in message.split():
         if(word in wordDB):
             answers = wordDB[word]
             answer = random.choice(answers)
-            if(answer != "" and answer[0] == '%'):
-                answer = '%answers/'+answer[1:]
-            return answer
-    return ""
+            if(isinstance(answer, str)):
+                if(answer != "" and answer[0] == '%'):
+                    answer = '%answers/'+answer[1:]
+                return answer, ""
+            else:
+                if(answer[0] != "" and answer[0][0] == '%'):
+                    answer[0] = '%answers/'+answer[0][1:]
+                return answer[0], answer[1]
+    return "", ""
 
-def msgRcv (timestamp, source, groupID, message, attachments):
+def msgRcv (timestamp, sender, groupID, message, attachments):
     # check only groupId for now, until indentites are accessible from dbus
     conv = next((x for x in conversations if x.number == groupID), None)
     if(message == '!comeback' or (conv != None and conv.shutup == False) or conv == None):
         if(message != ""):
             messageToSend = '['+emoji.emojize(configDB['name'][0], use_aliases=True)+'] '
-            answer = IA(conv, source, groupID, message, attachments)
+            answer, reaction = IA(conv, sender, groupID, message, attachments)
             if(answer != ""):
                 attachmentsToSend = []
                 if(answer[0] == "%"): # attachment
@@ -91,9 +96,14 @@ def msgRcv (timestamp, source, groupID, message, attachments):
                     messageToSend += answer
                     messageToSend = emoji.emojize(messageToSend, use_aliases=True)
                 if(groupID == []):
-                    signal.sendMessage(messageToSend, attachmentsToSend, [source])
+                    signal.sendMessage(messageToSend, attachmentsToSend, [sender])
                 else:
                     signal.sendGroupMessage(messageToSend, attachmentsToSend, groupID)
+            if reaction != "":
+                if(groupID == []):
+                    signal.sendMessageReaction(emoji.emojize(":thumbs_up:", True), False, sender, timestamp, [sender])                
+                else:
+                    signal.sendGroupMessageReaction(emoji.emojize(":thumbs_up:", True), False, sender, timestamp, groupID)
     # Delete attachments
     for a in attachments:
         os.remove(a)
