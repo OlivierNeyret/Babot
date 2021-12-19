@@ -101,9 +101,9 @@ def msgRcv (timestamp, sender, groupID, message, attachments):
                     signal.sendGroupMessage(messageToSend, attachmentsToSend, groupID)
             if reaction != "":
                 if(groupID == []):
-                    signal.sendMessageReaction(emoji.emojize(":thumbs_up:", True), False, sender, timestamp, [sender])                
+                    signal.sendMessageReaction(emoji.emojize(reaction, True), False, sender, timestamp, [sender])                
                 else:
-                    signal.sendGroupMessageReaction(emoji.emojize(":thumbs_up:", True), False, sender, timestamp, groupID)
+                    signal.sendGroupMessageReaction(emoji.emojize(reaction, True), False, sender, timestamp, groupID)
     # Delete attachments
     for a in attachments:
         os.remove(a)
