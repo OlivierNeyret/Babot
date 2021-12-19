@@ -26,7 +26,6 @@ class Conversation:
         self.wakeup = None
         self.goodnight = None
         self.events = []
-        self.stickers = []
         self.__isAwake = True
         self.threads = [None, None]
         self.shutup = False

@@ -48,13 +48,8 @@ def command(conv, message, source, groupID):
         return ""
     elif(cmd == "joke"):
         return "%jokes/"+random.choice(os.listdir(DIR_DATA+'ressources/'+"jokes"))
-    else: # Look for stickers
-        if(cmd in stickersDB):
-            stick = stickersDB[cmd]
-            authorized_recipient = stick[0]["authorized_recipient"]
-            if(source in authorized_recipient or groupID in authorized_recipient):
-                return "%stickers/"+stick[1]
-    return configDB['command_unknown'][0]
+    else:
+        return configDB['command_unknown'][0]
 
 def IA(conv, source, groupID, message, attachments):
     if(conv != None and conv.isSleeping()):
@@ -125,7 +120,6 @@ configDB = yaml.load(configFile, Loader=yaml.FullLoader)
 DIR_DATA = configDB["data_directory"][0]
 
 wordDB = yaml.load(open(DIR_DATA+"behavior/word.yml"), Loader=yaml.FullLoader)
-stickersDB = yaml.load(open(DIR_DATA+"behavior/stickers.yml"), Loader=yaml.FullLoader)
 eventsDB = yaml.load(open(DIR_DATA+"behavior/events.yml"), Loader=yaml.FullLoader)
 convDB = yaml.load(open(DIR_DATA+"behavior/conversation.yml"), Loader=yaml.FullLoader)
 
@@ -158,10 +152,6 @@ for event in eventsDB:
         else:
             print("Recipient not known by babot: "+str(recipient)+"\nBabot will continue to work anyway. No events will be triggered.")
     e.enable()
-
-for sticker in stickersDB:
-    print("Stickers are not implemented yet :/")
-    # do real stuff
 
 signal.onMessageReceived = msgRcv
 loop.run()
