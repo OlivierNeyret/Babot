@@ -27,8 +27,8 @@ class Event:
         self.messages = event[1]["answers"]
         self.attachments = event[2]["attachment"]
         self.whenDatetimes = []
-        for wheStr in event[3]["when"]:
-            self.whenDatetimes.append(datetime.strptime(wheStr, "%H:%M:%S"))
+        for whenStr in event[3]["when"]:
+            self.whenDatetimes.append(datetime.strptime(whenStr, "%H:%M:%S"))
         self.__threads = []
         self.signal = signal
         self.dir_data = dir_data

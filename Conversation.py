@@ -23,8 +23,8 @@ import random
 class Conversation:
     def __init__(self, number, yamlData):
         self.number = number
-        self.wakeup = None
-        self.goodnight = None
+        self.wakeupTime = None
+        self.goodnightTime = None
         self.events = []
         self.__isAwake = True
         self.threads = [None, None]
@@ -37,7 +37,7 @@ class Conversation:
 
     def setWakeup(self, wakeupTime):
         if(isinstance(wakeupTime, datetime)):
-            self.wakeup = wakeupTime
+            self.wakeupTime = wakeupTime
             if(self.threads[0] != None):
                 self.threads[0].cancel()
             delay = Event.computeNextEvent(wakeupTime)
@@ -49,10 +49,10 @@ class Conversation:
 
     def setGoodnight(self, goodnightTime):
         if(isinstance(goodnightTime, datetime)):
-            self.goodnight = goodnightTime + timedelta(minutes=self.delayToGetAsleep)
+            self.goodnightTime = goodnightTime + timedelta(minutes=self.delayToGetAsleep)
             if(self.threads[1] != None):
                 self.threads[1].cancel()
-            delay = Event.computeNextEvent(self.goodnight)
+            delay = Event.computeNextEvent(self.goodnightTime)
             t = threading.Timer(delay, self.callbackGoodnight)
             self.threads[1] = t
             t.start()
@@ -60,17 +60,19 @@ class Conversation:
             print("Conversation >> GOODNIGHT NOT A DATETIME")
 
     def callbackWakeup(self):
+        print("Conversation::callbackWakeup called")
         self.__isAwake = True
         self.enableEvents()
-        delay = Event.computeNextEvent(self.wakeup)
+        delay = Event.computeNextEvent(self.wakeupTime)
         t = threading.Timer(delay, self.callbackWakeup)
         self.threads[0] = t
         t.start()
     
     def callbackGoodnight(self):
+        print("Conversation::callbackGoodnight called")
         self.__isAwake = False
         self.disableEvents()
-        delay = Event.computeNextEvent(self.wakeup)
+        delay = Event.computeNextEvent(self.wakeupTime)
         t = threading.Timer(delay, self.callbackGoodnight)
         self.threads[1] = t
         t.start()
