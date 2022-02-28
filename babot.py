@@ -137,21 +137,22 @@ for g in gs:
     gc.setMembers(signal.getGroupMembers(g))
     conversations.append(gc)
 
-for event in eventsDB:
-    e = Event(eventsDB[event], event, signal, DIR_DATA, configDB['name'][0])
-    for recipient in eventsDB[event][0]['registered_recipient']:
-        c = next((x for x in conversations if x.number == recipient), None)
-        if(c != None):
-            c.events.append(e)
-            if(event.startswith("hello")):
-                c.setWakeup(e.whenDatetimes[0])
-                print("One hello event prepared")
-            elif(event.startswith("good_night")):
-                c.setGoodnight(e.whenDatetimes[0])
-                print("One good night event prepared")
-        else:
-            print("Recipient not known by babot: "+str(recipient)+"\nBabot will continue to work anyway. No events will be triggered.")
-    e.enable()
+if eventsDB != None:
+    for event in eventsDB:
+        e = Event(eventsDB[event], event, signal, DIR_DATA, configDB['name'][0])
+        for recipient in eventsDB[event][0]['registered_recipient']:
+            c = next((x for x in conversations if x.number == recipient), None)
+            if(c != None):
+                c.events.append(e)
+                if(event.startswith("hello")):
+                    c.setWakeup(e.whenDatetimes[0])
+                    print("One hello event prepared")
+                elif(event.startswith("good_night")):
+                    c.setGoodnight(e.whenDatetimes[0])
+                    print("One good night event prepared")
+            else:
+                print("Recipient not known by babot: "+str(recipient)+"\nBabot will continue to work anyway. No events will be triggered.")
+        e.enable()
 
 signal.onMessageReceived = msgRcv
 loop.run()
